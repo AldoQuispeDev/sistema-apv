@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//////////////////////////////////////////////////
+//               TABLA DE USUARIOS              //
+//////////////////////////////////////////////////
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  apellidoP String
+  apellidoM String
+  correo    String   @unique
+  dni       String?
+  domicilio String?
+  password  String
+  rol       Rol      @default(JUNTA_DIRECTIVA)
+  activo    Boolean  @default(true)
+  creadoEn  DateTime @default(now())
+
+  cargo      CargoDirectiva?
+  contratos  Contrato[]
+  auditorias Auditoria[]
+}
+
+enum Rol {
+  ADMIN
+  JUNTA_DIRECTIVA
+  SOCIO
+}
+
+//////////////////////////////////////////////////
+//               TABLA DE SOCIOS                //
+//////////////////////////////////////////////////
+model Socio {
+  id                Int              @id @default(autoincrement())
+  dni               String
+  nombres           String
+  apellidoP         String
+  apellidoM         String
+  telefono          String?
+  domicilio         String?
+  etapa             Int
+  nombrePariente    String?
+  apellidosPariente String?
+  numLote           String?
+  manzana           String?
+  areaLote          Float?
+  montoTotal        Float?
+  contrato          String?
+  aportes           Aporte[]
+  contratos         Contrato[]
+  cronogramas       CronogramaPago[]
+  creadoEn          DateTime         @default(now())
+
+  @@unique([dni, etapa]) // ✅ Un socio puede repetirse solo si pertenece a otra etapa
+}
+
+
+//////////////////////////////////////////////////
+//             TABLA DE APORTES POR SOCIO       //
+//////////////////////////////////////////////////
+model Aporte {
+  id          Int      @id @default(autoincrement())
+  socioId     Int
+  cuotaId     Int?
+  monto       Float
+  fecha       DateTime @default(now())
+  observacion String?
+  voucher     String?
+  estado      String   @default("PENDIENTE") // 🟡 pendiente, 🟢 aprobado, 🔴 rechazado
+
+  socio Socio           @relation(fields: [socioId], references: [id])
+  cuota CronogramaPago? @relation(fields: [cuotaId], references: [id], onDelete: Cascade)
+  detalles AporteDetalle[]
+}
+
+//////////////////////////////////////////////////
+//           TABLA DE DETALLE DE APORTES        //
+//////////////////////////////////////////////////
+model AporteDetalle {
+  id         Int      @id @default(autoincrement())
+  aporteId   Int
+  cuotaId    Int
+  monto      Float
+  aplicadoEn DateTime @default(now())
+
+  aporte Aporte         @relation(fields: [aporteId], references: [id])
+  cuota  CronogramaPago @relation(fields: [cuotaId], references: [id])
+  
+  @@unique([aporteId, cuotaId]) // 🔒 evita duplicados
+}
+
+//////////////////////////////////////////////////
+//             TABLA DE CARGOS DIRECTIVOS       //
+//////////////////////////////////////////////////
+model CargoDirectiva {
+  id        Int     @id @default(autoincrement())
+  usuarioId Int     @unique
+  cargo     String // PRESIDENTE | SECRETARIO | TESORERO
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+}
+
+//////////////////////////////////////////////////
+//             TABLA DE MODELOS CONTRATO        //
+//////////////////////////////////////////////////
+model ModeloContrato {
+  id          Int        @id @default(autoincrement())
+  tipo        String     @unique // ✅ Ahora se puede usar en el upsert
+  archivo     String
+  descripcion String?
+  contratos   Contrato[]
+}
+
+//////////////////////////////////////////////////
+//             TABLA DE CONTRATOS               //
+//////////////////////////////////////////////////
+model Contrato {
+  id            Int       @id @default(autoincrement())
+  socioId       Int
+  usuarioId     Int
+  modeloId      Int
+  etapaProyecto Int // ✅ Etapa de proyecto
+  rutaArchivo   String
+  montoLetras   String?
+  ciudadFirma   String?
+  fechaFirma    DateTime?
+  fechaGenerado DateTime  @default(now())
+  estado        String    @default("VIGENTE") // VIGENTE | HISTORICO | ANULADO
+
+  socio       Socio            @relation(fields: [socioId], references: [id])
+  usuario     Usuario          @relation(fields: [usuarioId], references: [id])
+  modelo      ModeloContrato   @relation(fields: [modeloId], references: [id])
+  cronogramas CronogramaPago[]
+
+  @@unique([socioId, etapaProyecto], map: "Contrato_socio_etapa_key") // ✅ solo uno por socio y etapa
+}
+
+//////////////////////////////////////////////////
+//           TABLA DE CRONOGRAMA DE PAGOS       //
+//////////////////////////////////////////////////
+model CronogramaPago {
+  id           Int      @id @default(autoincrement())
+  socioId      Int
+  contratoId   Int
+  cuotaNro     Int
+  monto        Float
+  montoPagado  Float   @default(0)
+  fechaPago    DateTime
+  estado       String   @default("PENDIENTE")
+  puntualidad  String   @default("PENDIENTE")   // 🆕 nuevo campo
+
+  socio        Socio    @relation(fields: [socioId], references: [id])
+  contrato     Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  aportes      Aporte[]
+  AporteDetalle AporteDetalle[]
+}
+
+//////////////////////////////////////////////////
+//              TABLA DE AUDITORÍA              //
+//////////////////////////////////////////////////
+model Auditoria {
+  id          Int      @id @default(autoincrement())
+  usuarioId   Int
+  accion      String
+  descripcion String
+  fecha       DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+}
