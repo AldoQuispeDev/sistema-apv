@@ -61,11 +61,12 @@ export const login = async (req, res) => {
     // 🍪 Guardar cookie segura
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, // ⚠️ cámbialo a true si usas HTTPS
-      sameSite: "lax",
+      secure: true,          // ✅ Render usa HTTPS → debe ser true
+      sameSite: "None",      // ✅ permite cookies entre dominios (Vercel <-> Render)
       path: "/",
       maxAge: 24 * 60 * 60 * 1000, // 1 día
     });
+
 
     res.json({
       mensaje: "Inicio de sesión exitoso",
@@ -87,8 +88,8 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    sameSite: "None",
+    secure: true,
     path: "/",
   });
   res.json({ mensaje: "Sesión cerrada correctamente" });
