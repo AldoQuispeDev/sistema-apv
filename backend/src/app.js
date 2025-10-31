@@ -13,20 +13,23 @@ import reporteRoutes from "./routes/reporte.routes.js";
 import usuariosRoutes from "./routes/usuarios.routes.js";
 
 dotenv.config();
-
 const app = express();
 
 // 🔒 Render corre detrás de proxy → cookies secure necesitan esto
 app.set("trust proxy", 1);
 
-// 🌐 CORS desde variable de entorno (coma-separado)
-const origins = (process.env.CLIENT_ORIGIN || "").split(",").map(s => s.trim()).filter(Boolean);
+// 🌐 CORS configurado dinámicamente desde variable de entorno
+const origins = (process.env.CLIENT_ORIGIN || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
     origin(origin, cb) {
       if (!origin || origins.includes(origin)) return cb(null, true);
-      return cb(new Error("Not allowed by CORS"));
+      console.warn(`❌ Bloqueado por CORS: ${origin}`);
+      return cb(new Error("No permitido por CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -39,7 +42,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 📂 Archivos estáticos (contratos/vouchers/modelos)
+// 📂 Archivos estáticos (contratos, vouchers, modelos)
 app.use("/uploads", express.static(path.resolve("uploads")));
 
 // 🔗 Rutas API
@@ -52,6 +55,6 @@ app.use("/api/generarContratos", contratoRoutes);
 app.use("/api/cronograma", cronogramaRoutes);
 
 // 🩺 Healthcheck
-app.get("/", (_req, res) => res.send("OK"));
+app.get("/", (_req, res) => res.send("✅ API funcionando correctamente"));
 
 export default app;

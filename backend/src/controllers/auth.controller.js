@@ -5,13 +5,16 @@ import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
-// 🧍‍♂️ Registro de usuario
+/* =====================================================
+ 🧍‍♂️ REGISTRO DE USUARIO
+===================================================== */
 export const registrar = async (req, res) => {
   try {
     const { nombre, apellidoP, apellidoM, correo, password, rol } = req.body;
 
     const existe = await prisma.usuario.findUnique({ where: { correo } });
-    if (existe) return res.status(400).json({ mensaje: "Correo ya registrado" });
+    if (existe)
+      return res.status(400).json({ mensaje: "Correo ya registrado" });
 
     const hash = await bcrypt.hash(password, 10);
 
@@ -33,7 +36,9 @@ export const registrar = async (req, res) => {
   }
 };
 
-// 🔑 Inicio de sesión
+/* =====================================================
+ 🔑 INICIO DE SESIÓN
+===================================================== */
 export const login = async (req, res) => {
   try {
     const { correo, password } = req.body;
@@ -58,18 +63,16 @@ export const login = async (req, res) => {
     // 🪪 Generar token
     const token = generarToken(usuario);
 
-    // 🍪 Guardar cookie segura
-    const isProduction = process.env.NODE_ENV === "production";
+    // ✅ Configuración de cookie (Render + Vercel)
+    const isProduction = process.env.NODE_ENV?.trim() === "production";
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProduction,      // ✅ solo true en producción
-      sameSite: isProduction ? "None" : "Lax",  // ✅ más permisivo en local
+      secure: true,             // 🔥 siempre HTTPS (Render usa HTTPS)
+      sameSite: "None",         // 🔥 necesario para Vercel ↔ Render
       path: "/",
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000, // 1 día
     });
-
-
 
     res.json({
       mensaje: "Inicio de sesión exitoso",
@@ -87,21 +90,23 @@ export const login = async (req, res) => {
   }
 };
 
-// 🚪 Cerrar sesión
+/* =====================================================
+ 🚪 CERRAR SESIÓN
+===================================================== */
 export const logout = async (req, res) => {
-  const isProduction = process.env.NODE_ENV === "production";
-
   res.clearCookie("token", {
     httpOnly: true,
-    secure: isProduction,                     // ✅ solo true en producción
-    sameSite: isProduction ? "None" : "Lax",  // ✅ compatible con localhost
+    secure: true,
+    sameSite: "None",
     path: "/",
   });
 
   res.json({ mensaje: "Sesión cerrada correctamente" });
 };
 
-// 👤 Obtener usuario autenticado
+/* =====================================================
+ 👤 USUARIO AUTENTICADO
+===================================================== */
 export const me = async (req, res) => {
   try {
     const token = req.cookies.token;
@@ -112,9 +117,8 @@ export const me = async (req, res) => {
       where: { id: decoded.id },
     });
 
-    if (!usuario) {
+    if (!usuario)
       return res.status(404).json({ mensaje: "Usuario no encontrado" });
-    }
 
     res.json({ usuario });
   } catch (error) {
