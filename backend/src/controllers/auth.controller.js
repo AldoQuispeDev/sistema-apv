@@ -61,7 +61,7 @@ export const login = async (req, res) => {
     // 🍪 Guardar cookie segura
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // ⚠️ cámbialo a true si usas HTTPS
+      secure: true, // ⚠️ cámbialo a true si usas HTTPS
       sameSite: "lax",
       path: "/",
       maxAge: 24 * 60 * 60 * 1000, // 1 día
