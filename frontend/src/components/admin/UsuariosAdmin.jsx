@@ -23,7 +23,7 @@ export default function UsuariosAdmin() {
 
   const cargarUsuarios = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/usuarios", {
+      const res = await axios.get("https://sistema-apv-backend.onrender.com/api/usuarios", {
         withCredentials: true,
       });
       setUsuarios(res.data);
@@ -41,7 +41,7 @@ export default function UsuariosAdmin() {
   const toggleEstado = async (id) => {
     try {
       await axios.put(
-        `http://localhost:4000/api/usuarios/estado/${id}`,
+        `https://sistema-apv-backend.onrender.com/api/usuarios/estado/${id}`,
         {},
         { withCredentials: true }
       );
@@ -61,7 +61,7 @@ export default function UsuariosAdmin() {
   const asignarCargo = async () => {
     try {
       await axios.post(
-        "http://localhost:4000/api/usuarios/cargo",
+        "https://sistema-apv-backend.onrender.com/api/usuarios/cargo",
         { usuarioId: usuarioSeleccionado.id, cargo },
         { withCredentials: true }
       );
@@ -89,7 +89,7 @@ export default function UsuariosAdmin() {
 
     try {
       await axios.post(
-        "http://localhost:4000/api/usuarios",
+        "https://sistema-apv-backend.onrender.com/api/usuarios",
         {
           nombre: nuevoUsuario.nombre,
           apellidoP: nuevoUsuario.apellidoP,

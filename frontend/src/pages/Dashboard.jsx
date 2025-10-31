@@ -27,7 +27,7 @@ export default function Dashboard() {
   // 📥 Obtener socios filtrados por etapa
   const obtenerSocios = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/socios?etapa=${etapa}`, {
+      const res = await axios.get(`https://sistema-apv-backend.onrender.com/api/socios?etapa=${etapa}`, {
         withCredentials: true,
       });
       setSocios(res.data);
@@ -39,7 +39,7 @@ export default function Dashboard() {
   // 📥 Obtener aportes de un socio
   const obtenerAportes = async (dni) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/aportes/${dni}`, {
+      const res = await axios.get(`https://sistema-apv-backend.onrender.com/api/aportes/${dni}`, {
         withCredentials: true,
       });
       const socio = res.data?.socio || res.data;

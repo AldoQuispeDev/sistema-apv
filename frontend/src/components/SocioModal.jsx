@@ -127,7 +127,7 @@ export default function SocioModal({ show, onHide, refrescar, socioEditar }) {
 
       if (socioEditar && socioEditar.id) {
         await axios.put(
-          `http://localhost:4000/api/socios/${socioEditar.id}`,
+          `https://sistema-apv-backend.onrender.com/api/socios/${socioEditar.id}`,
           formData,
           {
             withCredentials: true,
@@ -136,7 +136,7 @@ export default function SocioModal({ show, onHide, refrescar, socioEditar }) {
         );
         alert("✅ Socio actualizado correctamente");
       } else {
-        await axios.post("http://localhost:4000/api/socios", formData, {
+        await axios.post("https://sistema-apv-backend.onrender.com/api/socios", formData, {
           withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -208,7 +208,7 @@ export default function SocioModal({ show, onHide, refrescar, socioEditar }) {
                 </small>
                 <br />
                 <a
-                  href={`http://localhost:4000/uploads/${socio.contrato}`}
+                  href={`https://sistema-apv-backend.onrender.com/uploads/${socio.contrato}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

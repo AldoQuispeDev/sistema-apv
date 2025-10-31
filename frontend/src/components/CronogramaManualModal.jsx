@@ -31,7 +31,7 @@ export default function CronogramaManualModal({ show, onHide, socio, refrescar }
     setGuardando(true);
     try {
       await axios.post(
-        "http://localhost:4000/api/cronograma/manual",
+        "https://sistema-apv-backend.onrender.com/api/cronograma/manual",
         {
           socioId: socio.id,
           cuotas: filas.map((f) => ({

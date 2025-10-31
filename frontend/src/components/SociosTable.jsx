@@ -29,7 +29,7 @@ export default function SociosTable({
       return;
     }
     try {
-      await axios.delete(`http://localhost:4000/api/socios/${socioAEliminar.id}`, {
+      await axios.delete(`https://sistema-apv-backend.onrender.com/api/socios/${socioAEliminar.id}`, {
         withCredentials: true,
       });
       alert("✅ Socio eliminado correctamente");
@@ -86,7 +86,7 @@ export default function SociosTable({
                 <td>
                   {socio.contrato ? (
                     <a
-                      href={`http://localhost:4000/uploads/${socio.contrato}`}
+                      href={`https://sistema-apv-backend.onrender.com/uploads/${socio.contrato}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

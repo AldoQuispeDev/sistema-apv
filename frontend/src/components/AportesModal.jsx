@@ -15,7 +15,7 @@ export default function AportesModal({ show, onHide, socio, refrescar }) {
     if (!socio?.id) return;
     try {
       const res = await axios.get(
-        `http://localhost:4000/api/cronograma/socio/${socio.id}`,
+        `https://sistema-apv-backend.onrender.com/api/cronograma/socio/${socio.id}`,
         { withCredentials: true }
       );
       setCronograma(res.data);

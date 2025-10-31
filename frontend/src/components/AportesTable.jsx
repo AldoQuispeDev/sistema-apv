@@ -28,7 +28,7 @@ export default function AportesTable({ aportes }) {
                 <td>
                   {a.voucher ? (
                     <a
-                      href={`http://localhost:4000/uploads/vouchers/${a.voucher}`}
+                      href={`https://sistema-apv-backend.onrender.com/uploads/vouchers/${a.voucher}`}
                       target="_blank"
                       rel="noreferrer"
                     >
