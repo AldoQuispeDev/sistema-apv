@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: sistema-apv-backend
+    env: node
+    plan: free
+    buildCommand: "npm ci && npm run deploy:migrate"
+    startCommand: "npm start"
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_ORIGIN
+        value: "https://TU-FRONTEND.vercel.app"
+      - key: PORT
+        value: "10000"

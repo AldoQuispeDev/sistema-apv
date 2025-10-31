@@ -10,55 +10,48 @@ import aporteRoutes from "./routes/aporte.routes.js";
 import contratoRoutes from "./routes/contrato.routes.js";
 import cronogramaRoutes from "./routes/cronograma.routes.js";
 import reporteRoutes from "./routes/reporte.routes.js";
-import usuariosRoutes from "./routes/usuarios.routes.js"; // ✅ importa
+import usuariosRoutes from "./routes/usuarios.routes.js";
 
 dotenv.config();
 
 const app = express();
 
-// ✅ Configuración CORS (actualizada)
-const allowedOrigins = [
-  "http://localhost:5173",                 // desarrollo local
-  "https://sistema-apv-zz4a.vercel.app",   // 🚀 dominio actual de producción
-  "https://sistema-apv-a2j9.vercel.app",   // otros despliegues (opcional)
-  "https://sistema-apv-u9pz.vercel.app",
-];
+// 🔒 Render corre detrás de proxy → cookies secure necesitan esto
+app.set("trust proxy", 1);
+
+// 🌐 CORS desde variable de entorno (coma-separado)
+const origins = (process.env.CLIENT_ORIGIN || "").split(",").map(s => s.trim()).filter(Boolean);
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+    origin(origin, cb) {
+      if (!origin || origins.includes(origin)) return cb(null, true);
+      return cb(new Error("Not allowed by CORS"));
     },
-    credentials: true, // permite envío de cookies
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// ✅ Middlewares base
+// 📦 Middlewares base
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 📂 Archivos estáticos (contratos/vouchers/modelos)
+app.use("/uploads", express.static(path.resolve("uploads")));
+
+// 🔗 Rutas API
 app.use("/api/reportes", reporteRoutes);
 app.use("/api/usuarios", usuariosRoutes);
-
-// 📂 Servir archivos subidos (contratos, modelos, imágenes, etc.)
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-
-// 🔹 Rutas principales
 app.use("/api/auth", authRoutes);
 app.use("/api/socios", socioRoutes);
 app.use("/api/aportes", aporteRoutes);
 app.use("/api/generarContratos", contratoRoutes);
 app.use("/api/cronograma", cronogramaRoutes);
 
-// 🚦 Ruta de prueba (opcional)
-app.get("/", (req, res) => {
-  res.send("🚀 Servidor APV en funcionamiento correctamente");
-});
+// 🩺 Healthcheck
+app.get("/", (_req, res) => res.send("OK"));
 
 export default app;
