@@ -16,16 +16,24 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Configuración CORS
+// ✅ Configuración CORS (actualizada)
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://sistema-apv-a2j9.vercel.app",
+  "http://localhost:5173",                 // desarrollo local
+  "https://sistema-apv-zz4a.vercel.app",   // 🚀 dominio actual de producción
+  "https://sistema-apv-a2j9.vercel.app",   // otros despliegues (opcional)
   "https://sistema-apv-u9pz.vercel.app",
 ];
+
 app.use(
   cors({
-    origin: allowedOrigins,
-    credentials: true,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // permite envío de cookies
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
