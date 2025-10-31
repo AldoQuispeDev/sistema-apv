@@ -59,13 +59,16 @@ export const login = async (req, res) => {
     const token = generarToken(usuario);
 
     // 🍪 Guardar cookie segura
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,          // ✅ Render usa HTTPS → debe ser true
-      sameSite: "None",      // ✅ permite cookies entre dominios (Vercel <-> Render)
+      secure: isProduction,      // ✅ solo true en producción
+      sameSite: isProduction ? "None" : "Lax",  // ✅ más permisivo en local
       path: "/",
-      maxAge: 24 * 60 * 60 * 1000, // 1 día
+      maxAge: 24 * 60 * 60 * 1000,
     });
+
 
 
     res.json({
@@ -86,12 +89,15 @@ export const login = async (req, res) => {
 
 // 🚪 Cerrar sesión
 export const logout = async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "None",
-    secure: true,
+    secure: isProduction,                     // ✅ solo true en producción
+    sameSite: isProduction ? "None" : "Lax",  // ✅ compatible con localhost
     path: "/",
   });
+
   res.json({ mensaje: "Sesión cerrada correctamente" });
 };
 
