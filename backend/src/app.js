@@ -18,9 +18,9 @@ const app = express();
 
 // ✅ Configuración CORS
 const allowedOrigins = [
-  "http://localhost:5173", // desarrollo local
-  "https://sistema-apv-a2j9.vercel.app", // tu frontend (Vercel)
-  "https://sistema-apv-u9pz.vercel.app", // dominio alternativo por si cambia
+  "http://localhost:5173",
+  "https://sistema-apv-a2j9.vercel.app",
+  "https://sistema-apv-u9pz.vercel.app",
 ];
 app.use(
   cors({
